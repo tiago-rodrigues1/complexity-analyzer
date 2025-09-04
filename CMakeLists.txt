@@ -12,10 +12,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic")
 # string(APPEND CMAKE_CXX_FLAGS " -Wall -Werror")
 
 # Add include dir
-include_directories(source/include)
+include_directories(src/include)
 
 #=== Main App ===
-set( APP_NAME "snaze" )
+set( APP_NAME "analyzer" )
 add_executable( ${APP_NAME}
   src/main.cpp
 )
