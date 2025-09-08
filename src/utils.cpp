@@ -57,19 +57,19 @@ void read_csv(const std::string& path, std::vector<long long>& X, std::vector<do
     auto input = split(line, ',');
 
     if (input.size() < 2) {
-      std::cout << "Warn: Linha inválida será ignorada:\n" << line << '\n';
+      std::cout << ">>> Warn: Linha inválida será ignorada:\n" << "> " << line << '\n';
       continue;
     }
 
-    long long entry_size = std::stoll(input[0]);
-    double time = std::stod(input[1]);
+    try {
+      long long entry_size = std::stoll(input[0]);
+      double time = std::stod(input[1]);
 
-    if (entry_size == 0 or time == 0) {
-      std::cout << "Warn: Linha inválida será ignorada:\n" << line << '\n';
+      X.push_back(entry_size);
+      Y.push_back(time);
+    } catch (const std::exception& e) {
+      std::cout << ">>> Warn: Linha inválida será ignorada:\n" << "> " << line << '\n';
     }
-
-    X.push_back(entry_size);
-    Y.push_back(time);
   }
 
   data_file.close();
