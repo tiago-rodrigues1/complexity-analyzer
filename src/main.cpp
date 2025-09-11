@@ -7,7 +7,7 @@ int main() {
     dg.run_data_generator([](std::vector<int>& v) {
         std::sort(v.begin(), v.end());
     });
-
+    
     dg.export_to_csv("resultados.csv");
     return 0;
 }

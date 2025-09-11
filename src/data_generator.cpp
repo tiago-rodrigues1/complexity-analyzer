@@ -2,6 +2,8 @@
 #include <numeric>
 #include <iterator> 
 #include <chrono>
+#include <iostream>
+#include <vector>
 
 data_generator::data_generator(int n) : size(n) {
     for(int i = n; i > 0; --i) {
@@ -32,13 +34,23 @@ std::vector<std::vector<int>> data_generator::partition_vector(const std::vector
 void data_generator::run_data_generator(std::function<void(std::vector<int>&)> algorithm) {
     for (int n : input_sizes) {
         exec_times.clear();
-        auto partitioned = partition_vector(data, n);
+
+    
+        std::vector<int> test_data;
+        test_data.reserve(n); 
+        for(int i = n; i > 0; --i) {
+            test_data.push_back(i);
+        }
+
+        std::cout << "N = " << n << std::endl;
 
         for (int i = 0; i < repetitions; ++i) {
-            auto copy = partitioned[0];
+            auto copy = test_data;
+
             auto start = std::chrono::high_resolution_clock::now();
             algorithm(copy);
             auto end = std::chrono::high_resolution_clock::now();
+
             std::chrono::duration<double> duration = end - start;
             exec_times.push_back(duration.count());
         }
