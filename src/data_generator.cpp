@@ -18,7 +18,7 @@ std::vector<std::vector<int>> data_generator::partition_vector(const std::vector
     const auto end = original.cend();
 
     while (it != end) {
-        auto end_partition = std::distance(it, end) < partition_size
+        auto end_partition = static_cast<size_t>(std::distance(it, end)) < partition_size
                                  ? end
                                  : std::next(it, partition_size);
 
@@ -56,8 +56,6 @@ void data_generator::export_to_csv(const std::string& filename) const {
         std::cerr << "Erro: Nao foi possivel abrir o arquivo " << filename << std::endl;
         return;
     }
-
-    output_file << "Tamanho da Entrada,Tempo Medio (s)\n";
 
     for (const auto& result : results) {
         output_file << result.n << "," << result.avg_time << "\n";
