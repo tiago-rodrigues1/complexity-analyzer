@@ -28,7 +28,7 @@ std::vector<std::string> split(const std::string& str, char delimiter) {
 
   std::string token;
 
-  while(std::getline(iss >> std::ws, token, delimiter)) {
+  while (std::getline(iss >> std::ws, token, delimiter)) {
     tokens.emplace_back(token);
   }
 
@@ -39,7 +39,7 @@ bool is_valid_file(const std::string& path) {
   return std::filesystem::exists(path) and std::filesystem::is_regular_file(path);
 }
 
-void read_csv(const std::string& path, std::vector<long long>& X, std::vector<double>& Y) {
+void read_csv(const std::string& path, std::vector<long>& X, std::vector<double>& Y, Metadata& meta) {
   std::ifstream data_file{ path };
 
   if (!is_valid_file(path) or !data_file.is_open()) {
@@ -49,7 +49,7 @@ void read_csv(const std::string& path, std::vector<long long>& X, std::vector<do
 
   std::string line;
 
-  while(std::getline(data_file, line)) {
+  while (std::getline(data_file, line)) {
     if (line.size() == 0) {
       continue;
     }
@@ -65,6 +65,27 @@ void read_csv(const std::string& path, std::vector<long long>& X, std::vector<do
       long long entry_size = std::stoll(input[0]);
       double time = std::stod(input[1]);
 
+      if (X.size() == 0) {
+        meta.min_entry = entry_size;
+        meta.min_time = time;
+      }
+
+      if (entry_size < meta.min_entry) {
+        meta.min_entry = entry_size;
+      }
+
+      if (time < meta.min_time) {
+        meta.min_time = time;
+      }
+
+      if (entry_size > meta.max_entry) {
+        meta.max_entry = entry_size;
+      }
+
+      if (time > meta.max_time) {
+        meta.max_time = time;
+      }
+
       X.push_back(entry_size);
       Y.push_back(time);
     } catch (const std::exception& e) {
@@ -73,4 +94,13 @@ void read_csv(const std::string& path, std::vector<long long>& X, std::vector<do
   }
 
   data_file.close();
+}
+
+std::vector<double> linspace(double start, double end, int num_points) {
+  std::vector<double> result(num_points);
+  double step = (end - start) / (num_points - 1);
+  for (int i = 0; i < num_points; ++i) {
+    result[i] = start + step * i;
+  }
+  return result;
 }

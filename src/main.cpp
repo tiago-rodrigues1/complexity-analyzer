@@ -1,6 +1,9 @@
 #include <iostream>
+#include <math.h>
+#include <memory>
 #include <vector>
 
+#include "function.hpp"
 #include "utils.hpp"
 
 void usage() {
@@ -29,16 +32,39 @@ void setup(int argc, char* argv[], std::string& file_path) {
 }
 
 int main(int argc, char* argv[]) {
-
   std::string file_path;
   setup(argc, argv, file_path);
 
-  std::vector<long long> X;
+  std::vector<long> X;
   std::vector<double> Y;
+  Metadata meta;
+  
+  read_csv(file_path, X, Y, meta);
 
-  read_csv(file_path, X, Y);
+  std::vector<double> x_cont = linspace(meta.min_entry, meta.max_entry, X.size());
 
-  for (size_t i = 0; i < X.size(); ++i) {
-    std::cout << "(" << X[i] << "; " << Y[i] << ")\n";
+  std::vector<std::unique_ptr<ComplexityFunction>> functions;
+  functions.emplace_back(std::make_unique<Constant>());
+  functions.emplace_back(std::make_unique<Linear>());
+  functions.emplace_back(std::make_unique<Logarithmic>());
+  functions.emplace_back(std::make_unique<NLogN>());
+  functions.emplace_back(std::make_unique<Quadratic>());
+  functions.emplace_back(std::make_unique<Cubic>());
+
+  size_t best_guess_index = 0;
+  
+  for (size_t i = 0; i < functions.size(); ++i) {
+    auto& func = functions[i];
+
+    func->set_data(x_cont);
+    func->set_mse(Y, meta.max_time);
+
+    std::cout << "> " << func->get_name() << ": " << func->get_mse() << '\n';
+
+    if (func->get_mse() < functions[best_guess_index]->get_mse()) {
+      best_guess_index = i;
+    }
   }
+
+  std::cout << "\n>>> Best complexity: " << functions[best_guess_index]->get_name() << '\n';
 }

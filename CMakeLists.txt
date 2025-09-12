@@ -19,6 +19,7 @@ set( APP_NAME "analyzer" )
 add_executable( ${APP_NAME}
   src/main.cpp
   src/utils.cpp
+  src/function.cpp
 )
 target_include_directories( ${APP_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/lib )
 target_compile_features( ${APP_NAME}  PUBLIC cxx_std_17 )
