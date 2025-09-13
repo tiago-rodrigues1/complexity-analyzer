@@ -1,5 +1,3 @@
-// src/plotter.cpp
-
 #include "include/plotter.hpp"
 #include "gnuplot-iostream.h"
 #include <cmath>
@@ -7,7 +5,6 @@
 #include <vector>
 #include <numeric>
 
-// CORREÇÃO: Função para calcular ajuste por regressão linear
 std::pair<double, double> linear_regression(const std::vector<long long>& x_data, 
                                            const std::vector<double>& y_data,
                                            std::function<double(double)> transform_x) {
@@ -42,11 +39,10 @@ void plot_graph(
     gp << "set xlabel 'Tamanho da Entrada (n)'\n";
     gp << "set ylabel 'Tempo Médio (ms)'\n";
     gp << "set grid\n";
-    gp << "set key left top\n";  // CORREÇÃO: Posição da legenda
-    gp << "set terminal pngcairo size 1200,800 font 'Arial,12'\n";  // CORREÇÃO: Melhor qualidade
+    gp << "set key left top\n"; 
+    gp << "set terminal pngcairo size 1200,800 font 'Arial,12'\n"; 
     gp << "set output 'grafico_analise.png'\n";
 
-    // CORREÇÃO: Calcular ajustes usando regressão linear para cada função
     
     // Para O(n)
     auto [a_linear, b_linear] = linear_regression(x_data, y_data, [](double x) { return x; });
@@ -57,7 +53,6 @@ void plot_graph(
     // Para O(n²)
     auto [a_quad, b_quad] = linear_regression(x_data, y_data, [](double x) { return x * x; });
 
-    // CORREÇÃO: Definir funções com ajuste adequado
     gp << "f_n(x) = " << a_linear << " * x + " << b_linear << "\n";
     gp << "f_nlogn(x) = " << a_nlogn << " * x * (log(x)/log(2)) + " << b_nlogn << "\n";
     gp << "f_nsquared(x) = " << a_quad << " * x**2 + " << b_quad << "\n";
@@ -66,13 +61,11 @@ void plot_graph(
     std::vector<std::string> legend_titles = {"Teórico O(n)", "Teórico O(n log n)", "Teórico O(n²)"};
     std::vector<std::string> colors = {"blue", "green", "red"};
 
-    // CORREÇÃO: Melhor comando de plot
     std::string plot_command = "plot '-' with points pointtype 7 pointsize 1.5 linecolor 'black' title 'Dados Empíricos'";
 
     for(size_t i = 0; i < func_names.size(); ++i) {
         std::string line_style = "with lines linecolor '" + colors[i] + "'";
         
-        // CORREÇÃO: Destacar a melhor curva
         if(i == best_fit_index) {
             line_style += " linewidth 4 dashtype 1"; // Linha mais grossa e sólida
         } else {
@@ -85,7 +78,6 @@ void plot_graph(
     gp << plot_command << "\n";
     gp.send1d(std::make_pair(x_data, y_data));
 
-    // CORREÇÃO: Calcular e exibir métricas de qualidade do ajuste
     std::cout << "\n=== Métricas de Ajuste ===" << std::endl;
     std::cout << "O(n): a=" << a_linear << ", b=" << b_linear << std::endl;
     std::cout << "O(n log n): a=" << a_nlogn << ", b=" << b_nlogn << std::endl;
