@@ -18,6 +18,7 @@ include_directories(src/include)
 set( APP_NAME "analyzer" )
 add_executable( ${APP_NAME}
   src/main.cpp
+  src/data_generator.cpp
   src/utils.cpp
 )
 target_include_directories( ${APP_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/lib )
