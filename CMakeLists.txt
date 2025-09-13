@@ -22,7 +22,8 @@ add_executable( ${APP_NAME}
   src/main.cpp
   src/data_generator.cpp
   src/utils.cpp
-  src/gnuplot.cpp 
+  src/plotter.cpp 
+  src/function.cpp
 )
 
 target_include_directories(analyzer PUBLIC
