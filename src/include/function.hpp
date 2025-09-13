@@ -5,15 +5,17 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <numeric>
+#include <algorithm>
+#include <limits>
 
 class ComplexityFunction {
 protected:
   std::string name;
   std::vector<double> data;
-  double max_value = 0;
   double mse;
 
-  public:
+public:
   ComplexityFunction(const std::string& nm) : name(nm) {}
   virtual ~ComplexityFunction() = default;
   
@@ -24,33 +26,66 @@ protected:
   }
 
   void set_data(const std::vector<double>& x) {
+    data.clear();
+    data.reserve(x.size());
+
     for (const auto& n : x) {
-      double expected = expected_value(n * 1.0);
-      if (expected > max_value) max_value = expected;
-      data.push_back(expected);
+      data.push_back(expected_value(n));
     }
   }
 
   void set_mse(const std::vector<double>& y, double max_y) {
     if (y.size() != data.size()) {
       std::cerr << "Invalido\n";
+      mse = std::numeric_limits<double>::max();
       return;
     }
 
-    double sum = 0;
-
-    for (size_t i = 0; i < data.size(); ++i) {
-      double y_norm = y[i] / max_y;
-      double data_norm = data[i] / max_value;
-      double sqr_diff = pow((y_norm - data_norm), 2);
-      sum += sqr_diff;
+    size_t n = y.size();
+    double sum_x = 0, sum_y = 0, sum_xy = 0, sum_x2 = 0;
+    
+    double max_theoretical = *std::max_element(data.begin(), data.end());
+    if (max_theoretical == 0) {
+      mse = std::numeric_limits<double>::max();
+      return;
     }
-
-    mse = sum / data.size();
+    
+    for (size_t i = 0; i < n; ++i) {
+      double x_norm = data[i] / max_theoretical;
+      double y_norm = y[i] / max_y;
+      
+      sum_x += x_norm;
+      sum_y += y_norm;
+      sum_xy += x_norm * y_norm;
+      sum_x2 += x_norm * x_norm;
+    }
+    
+    double denominator = n * sum_x2 - sum_x * sum_x;
+    double a = (denominator != 0) ? (n * sum_xy - sum_x * sum_y) / denominator : 0;
+    double b = (sum_y - a * sum_x) / n;
+    
+    double sum = 0;
+    for (size_t i = 0; i < n; ++i) {
+      double x_norm = data[i] / max_theoretical;
+      double y_norm = y[i] / max_y;
+      double predicted = a * x_norm + b;
+      double error = y_norm - predicted;
+      sum += error * error;
+    }
+    
+    mse = sum / n;
+    
+    if (a < 0) {
+      mse *= 10;
+    }
   }
 
-  double get_mse() {
+  double get_mse() const {
     return mse;
+  }
+  
+  const std::vector<double>& get_data() const {
+    return data;
   }
 };
 

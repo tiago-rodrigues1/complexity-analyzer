@@ -4,6 +4,8 @@
 #include <chrono>
 #include <iostream>
 #include <vector>
+#include <algorithm>
+#include <thread>
 
 data_generator::data_generator(int n) : size(n) {
     for(int i = n; i > 0; --i) {
@@ -42,22 +44,41 @@ void data_generator::run_data_generator(std::function<void(std::vector<int>&)> a
             test_data.push_back(i);
         }
 
-        std::cout << "N = " << n << std::endl;
+        {
+            auto warmup_copy = test_data;
+            algorithm(warmup_copy);
+        }
 
-        for (int i = 0; i < repetitions; ++i) {
+    
+        std::vector<double> valid_times;
+        
+        for (int i = 0; i < repetitions + 5; ++i) {
             auto copy = test_data;
 
+            std::this_thread::sleep_for(std::chrono::microseconds(100)); 
+            
             auto start = std::chrono::high_resolution_clock::now();
             algorithm(copy);
             auto end = std::chrono::high_resolution_clock::now();
           
             std::chrono::duration<double, std::milli> duration_ms = end - start;
-
+            
             exec_times.push_back(duration_ms.count());
         }
         
+        std::sort(exec_times.begin(), exec_times.end());
+        
+        // Remover 20% dos valores mais extremos (10% de cada lado)
+        size_t remove_count = exec_times.size() / 10;
+        if (remove_count > 0) {
+            exec_times.erase(exec_times.begin(), exec_times.begin() + remove_count);
+            exec_times.erase(exec_times.end() - remove_count, exec_times.end());
+        }
+        
+        // Calcular média dos valores filtrados
         double sum_times = std::accumulate(exec_times.begin(), exec_times.end(), 0.0);
-        double avg_time = sum_times / repetitions;
+        double avg_time = sum_times / exec_times.size();
+        
         results.push_back({n, avg_time});
     }
 }
@@ -66,12 +87,14 @@ void data_generator::export_to_csv(const std::string& filename) const {
     std::ofstream output_file(filename);
 
     if (!output_file.is_open()) {
-        std::cerr << "Erro: Nao foi possivel abrir o arquivo " << filename << std::endl;
+        std::cerr << "Erro: Não foi possível abrir o arquivo " << filename << std::endl;
         return;
     }
+    
+    output_file << "tamanho,tempo_ms\n";
 
     for (const auto& result : results) {
-        output_file << result.n << "," << result.avg_time << "\n";
+        output_file << result.n << "," << std::fixed << result.avg_time << "\n";
     }
 
     output_file.close();

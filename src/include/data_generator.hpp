@@ -1,35 +1,43 @@
 #ifndef DATA_GENERATOR_HPP
 #define DATA_GENERATOR_HPP
 
-#include <iostream>
 #include <vector>
-#include <numeric>
-#include <algorithm>
 #include <functional>
 #include <string>
 #include <fstream>
-#include <chrono>
+
+struct Result {
+    int n;
+    double avg_time;
+};
 
 class data_generator {
 private:
-    struct Result {
-        int n;
-        double avg_time;
-    };
-
-    int size;
     std::vector<int> data;
-    std::vector<int> input_sizes = {5000, 7000, 9000, 11000, 13000, 15000, 17000, 19000, 21000, 23000, 25000};
-    int repetitions = 5;
+    std::vector<Result> results; 
     std::vector<double> exec_times;
-    std::vector<Result> results;
-
-    std::vector<std::vector<int>> partition_vector(const std::vector<int>& original, size_t partition_size);
+    int size;
+    
+    std::vector<int> input_sizes = {1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 
+                                   11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000};
+    int repetitions = 10;
 
 public:
     data_generator(int n);
+    
+    std::vector<std::vector<int>> partition_vector(const std::vector<int>& original, size_t partition_size);
+    
     void run_data_generator(std::function<void(std::vector<int>&)> algorithm);
+    
     void export_to_csv(const std::string& filename) const;
+    
+    void set_input_sizes(const std::vector<int>& sizes) {
+        input_sizes = sizes;
+    }
+
+    void set_repetitions(int reps) {
+        if (reps > 0) repetitions = reps;
+    }
 };
 
 #endif
