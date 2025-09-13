@@ -19,7 +19,7 @@ private:
 
     int size;
     std::vector<int> data;
-    std::vector<int> input_sizes = {5000, 7000, 9000, 10000};
+    std::vector<int> input_sizes = {5000, 7000, 9000, 11000, 13000, 15000, 17000, 19000, 21000, 23000, 25000};
     int repetitions = 5;
     std::vector<double> exec_times;
     std::vector<Result> results;
