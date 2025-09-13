@@ -3,9 +3,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
-
 #include "utils.hpp"
-
+#include "include/gnuplot.hpp"
 
 int main(int argc, char* argv[]) {
   const std::string file_path = "resultados.csv";
@@ -20,10 +19,7 @@ int main(int argc, char* argv[]) {
   std::vector<double> Y;
   read_csv(file_path, X, Y); 
 
-  std::cout << "\n--- Lendo dados do CSV ---\n";
-  for (size_t i = 0; i < X.size(); ++i) {
-    std::cout << "X: " << X[i] << " | Y: " << Y[i] << '\n';
-  }
-
+  plot_graph(X, Y);
+  
   return 0;
 }

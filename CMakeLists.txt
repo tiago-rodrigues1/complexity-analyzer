@@ -6,6 +6,8 @@ project (SlotProject VERSION 1.0.0 LANGUAGES CXX )
 # CMAKE_EXPORT_COMPILE_COMMANDS.
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
+find_package(Boost REQUIRED COMPONENTS iostreams)
+
 #=== SETTING VARIABLES ===#
 # Appending to existing flags the correct way (two methods)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic")
@@ -20,6 +22,15 @@ add_executable( ${APP_NAME}
   src/main.cpp
   src/data_generator.cpp
   src/utils.cpp
+  src/gnuplot.cpp 
 )
+
+target_include_directories(analyzer PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/lib
+)
+
 target_include_directories( ${APP_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/lib )
 target_compile_features( ${APP_NAME}  PUBLIC cxx_std_17 )
+target_link_libraries(analyzer PUBLIC
+  Boost::iostreams
+)
