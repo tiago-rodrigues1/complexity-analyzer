@@ -50,11 +50,12 @@ void data_generator::run_data_generator(std::function<void(std::vector<int>&)> a
             auto start = std::chrono::high_resolution_clock::now();
             algorithm(copy);
             auto end = std::chrono::high_resolution_clock::now();
+          
+            std::chrono::duration<double, std::milli> duration_ms = end - start;
 
-            std::chrono::duration<double> duration = end - start;
-            exec_times.push_back(duration.count());
+            exec_times.push_back(duration_ms.count());
         }
-
+        
         double sum_times = std::accumulate(exec_times.begin(), exec_times.end(), 0.0);
         double avg_time = sum_times / repetitions;
         results.push_back({n, avg_time});
