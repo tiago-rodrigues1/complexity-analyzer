@@ -24,20 +24,12 @@ private:
 
 public:
     data_generator(int n);
-    
-    std::vector<std::vector<int>> partition_vector(const std::vector<int>& original, size_t partition_size);
-    
     void run_data_generator(std::function<void(std::vector<int>&)> algorithm);
-    
     void export_to_csv(const std::string& filename) const;
-    
-    void set_input_sizes(const std::vector<int>& sizes) {
-        input_sizes = sizes;
-    }
+    double calculate_time(std::vector<int>& copy, std::function<void(std::vector<int>&)> algorithm);
+    double calculate_median(std::vector<double> times);
 
-    void set_repetitions(int reps) {
-        if (reps > 0) repetitions = reps;
-    }
+
 };
 
 #endif

@@ -1,86 +1,57 @@
 #include "data_generator.hpp"
+
 #include <numeric>
-#include <iterator> 
+#include <iterator>
 #include <chrono>
 #include <iostream>
 #include <vector>
 #include <algorithm>
 #include <thread>
+#include <fstream>
 
 data_generator::data_generator(int n) : size(n) {
-    for(int i = n; i > 0; --i) {
+    for (int i = n; i > 0; --i) {
         data.push_back(i);
     }
-}
-
-std::vector<std::vector<int>> data_generator::partition_vector(const std::vector<int>& original, size_t partition_size){
-    std::vector<std::vector<int>> result;
-
-    if (partition_size == 0) return result;
-
-    auto it = original.cbegin();
-    const auto end = original.cend();
-
-    while (it != end) {
-        auto end_partition = static_cast<size_t>(std::distance(it, end)) < partition_size
-                                 ? end
-                                 : std::next(it, partition_size);
-
-        result.emplace_back(it, end_partition);
-        it = end_partition;
-    }
-
-    return result;
 }
 
 void data_generator::run_data_generator(std::function<void(std::vector<int>&)> algorithm) {
     for (int n : input_sizes) {
         exec_times.clear();
 
-    
-        std::vector<int> test_data;
-        test_data.reserve(n); 
-        for(int i = n; i > 0; --i) {
-            test_data.push_back(i);
-        }
+        std::vector<int> base_data(data.begin(), data.begin() + n);
 
-        {
-            auto warmup_copy = test_data;
-            algorithm(warmup_copy);
-        }
-
-    
-        std::vector<double> valid_times;
-        
         for (int i = 0; i < repetitions + 5; ++i) {
-            auto copy = test_data;
+            auto copy = base_data; 
+            double duration_ms = calculate_time(copy, algorithm);
+            exec_times.push_back(duration_ms);
+        }
 
-            std::this_thread::sleep_for(std::chrono::microseconds(100)); 
-            
-            auto start = std::chrono::high_resolution_clock::now();
-            algorithm(copy);
-            auto end = std::chrono::high_resolution_clock::now();
-          
-            std::chrono::duration<double, std::milli> duration_ms = end - start;
-            
-            exec_times.push_back(duration_ms.count());
-        }
-        
         std::sort(exec_times.begin(), exec_times.end());
-        
-        // Remover 20% dos valores mais extremos (10% de cada lado)
-        size_t remove_count = exec_times.size() / 10;
-        if (remove_count > 0) {
-            exec_times.erase(exec_times.begin(), exec_times.begin() + remove_count);
-            exec_times.erase(exec_times.end() - remove_count, exec_times.end());
-        }
-        
-        // Calcular média dos valores filtrados
-        double sum_times = std::accumulate(exec_times.begin(), exec_times.end(), 0.0);
-        double avg_time = sum_times / exec_times.size();
-        
+        double avg_time = calculate_median(exec_times);
+
         results.push_back({n, avg_time});
     }
+}
+
+double data_generator::calculate_time(std::vector<int>& copy,
+                                      std::function<void(std::vector<int>&)> algorithm) {
+    std::this_thread::sleep_for(std::chrono::microseconds(100));
+    auto start = std::chrono::high_resolution_clock::now();
+
+    algorithm(copy);
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> duration_ms = end - start;
+
+    return duration_ms.count();
+}
+
+double data_generator::calculate_median(std::vector<double> times) {
+    if (times.empty()) return 0.0;
+
+    double sum_times = std::accumulate(times.begin(), times.end(), 0.0);
+    return sum_times / times.size();
 }
 
 void data_generator::export_to_csv(const std::string& filename) const {
@@ -90,7 +61,7 @@ void data_generator::export_to_csv(const std::string& filename) const {
         std::cerr << "Erro: Não foi possível abrir o arquivo " << filename << std::endl;
         return;
     }
-    
+
     output_file << "tamanho,tempo_ms\n";
 
     for (const auto& result : results) {
