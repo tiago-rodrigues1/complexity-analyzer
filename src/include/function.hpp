@@ -15,6 +15,34 @@ protected:
   std::vector<double> data;
   double mse;
 
+private:
+
+// Finds the best fit line (linear regression) for the given points
+std::pair<double,double> linear_regression(const std::vector<double>& x, const std::vector<double>& y) const {
+    size_t n = x.size();
+    double sum_x = std::accumulate(x.begin(), x.end(), 0.0);
+    double sum_y = std::accumulate(y.begin(), y.end(), 0.0);
+    double sum_xy = std::inner_product(x.begin(), x.end(), y.begin(), 0.0);
+    double sum_x2 = std::inner_product(x.begin(), x.end(), x.begin(), 0.0);
+
+    double denominator = n * sum_x2 - sum_x * sum_x;
+    double a = (denominator != 0) ? (n * sum_xy - sum_x * sum_y) / denominator : 0;
+    double b = (sum_y - a * sum_x) / n;
+
+    return {a, b};
+}
+
+// Computes the Mean Squared Error between predicted and actual values
+double compute_mse(const std::vector<double>& x, const std::vector<double>& y, double a, double b) const {
+    double sum = 0.0;
+    for (size_t i = 0; i < x.size(); ++i) {
+        double predicted = a * x[i] + b;
+        double error = y[i] - predicted;
+        sum += error * error;
+    }
+    return sum / x.size(); // computes the mean of squared errors
+}
+
 public:
   ComplexityFunction(const std::string& nm) : name(nm) {}
   virtual ~ComplexityFunction() = default;
@@ -36,47 +64,38 @@ public:
 
   void set_mse(const std::vector<double>& y, double max_y) {
     if (y.size() != data.size()) {
-      std::cerr << "Invalido\n";
-      mse = std::numeric_limits<double>::max();
-      return;
+        mse = std::numeric_limits<double>::max();
+        return;
     }
 
-    size_t n = y.size();
-    double sum_x = 0, sum_y = 0, sum_xy = 0, sum_x2 = 0;
-    
+    if (data.empty()) {
+        mse = std::numeric_limits<double>::max();
+        return;
+    }
+
     double max_theoretical = *std::max_element(data.begin(), data.end());
-    if (max_theoretical == 0) {
-      mse = std::numeric_limits<double>::max();
-      return;
+    if (max_theoretical == 0 || max_y == 0) {
+        mse = std::numeric_limits<double>::max();
+        return;
     }
-    
-    for (size_t i = 0; i < n; ++i) {
-      double x_norm = data[i] / max_theoretical;
-      double y_norm = y[i] / max_y;
-      
-      sum_x += x_norm;
-      sum_y += y_norm;
-      sum_xy += x_norm * y_norm;
-      sum_x2 += x_norm * x_norm;
+
+    // Normalize values
+    std::vector<double> x_norm(data.size());
+    std::vector<double> y_norm(y.size());
+    for (size_t i = 0; i < data.size(); ++i) {
+        x_norm[i] = data[i] / max_theoretical;
+        y_norm[i] = y[i] / max_y;
     }
-    
-    double denominator = n * sum_x2 - sum_x * sum_x;
-    double a = (denominator != 0) ? (n * sum_xy - sum_x * sum_y) / denominator : 0;
-    double b = (sum_y - a * sum_x) / n;
-    
-    double sum = 0;
-    for (size_t i = 0; i < n; ++i) {
-      double x_norm = data[i] / max_theoretical;
-      double y_norm = y[i] / max_y;
-      double predicted = a * x_norm + b;
-      double error = y_norm - predicted;
-      sum += error * error;
-    }
-    
-    mse = sum / n;
-    
+
+    // Fit linear regression
+    auto [a, b] = linear_regression(x_norm, y_norm);
+
+    // Compute MSE
+    mse = compute_mse(x_norm, y_norm, a, b);
+
+    // Penalize if slope is negative
     if (a < 0) {
-      mse *= 10;
+        mse *= 10;
     }
   }
 
@@ -90,7 +109,6 @@ public:
 };
 
 /// Complexity Functions
-
 class Constant : public ComplexityFunction {
 public:
   Constant() : ComplexityFunction("O(1)") {}
