@@ -144,17 +144,4 @@ public:
   Cubic() : ComplexityFunction("O(n^3)") {}
   double expected_value(double n) override;
 };
-
-class Exponential : public ComplexityFunction {
-public:
-  Exponential() : ComplexityFunction("O(2^n)") {}
-  double expected_value(double n) override;
-};
-
-class Factorial : public ComplexityFunction {
-public:
-  Factorial() : ComplexityFunction("O(n!)") {}
-  double expected_value(double n) override;
-};
-
 #endif

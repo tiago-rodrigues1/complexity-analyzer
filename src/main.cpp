@@ -1,8 +1,8 @@
 #include "data_generator.hpp"
 #include "utils.hpp"
-#include "include/function.hpp"
-#include "include/plotter.hpp"
-#include "algorithms.hpp" // Garanta que este header declare todas as funções de algoritmo
+#include "function.hpp"
+#include "plotter.hpp"
+#include "algorithms.hpp"
 
 #include <iostream>
 #include <string>
@@ -68,50 +68,52 @@ void analyze_and_plot(const std::string& algorithm_name, const std::string& file
 
 
 int main() {
-    const int DATA_SIZE = 20000;
+    const int MIN_SIZE = 1000;
+    const int MAX_SIZE = 20000;
+    const int N_SAMPLES = 20;
 
     std::vector<Algorithm> algorithms = {
         {
             "sequential_search",
             [](std::vector<int>& v) {
-                sequential_search(v, v[v.size() / 2]); // O(n)
-            }
-        },
-        {
-            "binary_search",
-            [](std::vector<int>& v) {
-                std::sort(v.begin(), v.end());
-                binary_search(v, v[v.size() / 2]); // O(log n)
-            }
-        },
-        {
-            "bubble_sort",
-            [](std::vector<int>& v) {
-                bubble_sort(v); // O(n^2)
-            }
-        },
-        {
-            "merge_sort",
-            [](std::vector<int>& v) {
-                merge_sort(v); // O(n log n)
+                sequential_search(v, -1); // O(n)
             }
         }
+        // {
+        //     "binary_search",
+        //     [](std::vector<int>& v) {
+        //         binary_search(v, v[v.size() / 2]); // O(log n)
+        //     }
+        // },
+        // {
+        //     "bubble_sort",
+        //     [](std::vector<int>& v) {
+        //         bubble_sort(v); // O(n^2)
+        //     }
+        // },
+        // {
+        //     "merge_sort",
+        //     [](std::vector<int>& v) {
+        //         merge_sort(v); // O(n log n)
+        //     }
+        // }
     };
 
-    // O loop principal executa e analisa cada algoritmo da lista
-    for (const auto& algo : algorithms) {
-        std::cout << "\n=========================================" << std::endl;
-        std::cout << "   Executando: " << algo.name << std::endl;
-        std::cout << "=========================================" << std::endl;
+    DataGenerator dg(N_SAMPLES, MIN_SIZE, MAX_SIZE);
 
-        data_generator dg(DATA_SIZE);
-        dg.run_data_generator(algo.function);
+    for (const auto& algo : algorithms) {
+        std::cout << "\n=========================================\n";
+        std::cout << "   Executando: " << algo.name << std::endl;
+        std::cout << "=========================================\n";
+
+        
+        dg.run(algo.function);
 
         std::string filename = algo.name + ".csv";
         dg.export_to_csv(filename);
 
 
-        analyze_and_plot(algo.name, filename);
+        // analyze_and_plot(algo.name, filename);
     }
     
     return 0;

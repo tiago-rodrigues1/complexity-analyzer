@@ -1,4 +1,5 @@
 #include "data_generator.hpp"
+#include "utils.hpp"
 
 #include <numeric>
 #include <iterator>
@@ -9,21 +10,22 @@
 #include <thread>
 #include <fstream>
 
-data_generator::data_generator(int n) : size(n) {
-    for (int i = n; i > 0; --i) {
+DataGenerator::DataGenerator(int smp, int min, int max) : m_num_samples(smp), m_min_size(min), m_max_size(max) {
+    for (int i = m_max_size; i > 0; --i) {
         data.push_back(i);
     }
+
+    input_sizes = linspace(m_min_size, m_max_size, m_num_samples);
 }
 
-void data_generator::run_data_generator(std::function<void(std::vector<int>&)> algorithm) {
-    for (int n : input_sizes) {
-        exec_times.clear();
+void DataGenerator::run(std::function<void(std::vector<int>&)> algorithm) {
+    std::vector<double> exec_times;
 
+    for (int n : input_sizes) {
         std::vector<int> base_data(data.begin(), data.begin() + n);
 
-        for (int i = 0; i < repetitions + 5; ++i) {
-            auto copy = base_data; 
-            double duration_ms = calculate_time(copy, algorithm);
+        for (int i = 0; i < repetitions; ++i) {
+            double duration_ms = calculate_time(base_data, algorithm);
             exec_times.push_back(duration_ms);
         }
 
@@ -34,27 +36,26 @@ void data_generator::run_data_generator(std::function<void(std::vector<int>&)> a
     }
 }
 
-double data_generator::calculate_time(std::vector<int>& copy,
-                                      std::function<void(std::vector<int>&)> algorithm) {
+double DataGenerator::calculate_time(std::vector<int> copy, std::function<void(std::vector<int>&)> algorithm) {
     std::this_thread::sleep_for(std::chrono::microseconds(100));
+
     auto start = std::chrono::high_resolution_clock::now();
-
     algorithm(copy);
-
     auto end = std::chrono::high_resolution_clock::now();
+
     std::chrono::duration<double, std::milli> duration_ms = end - start;
 
     return duration_ms.count();
 }
 
-double data_generator::calculate_median(std::vector<double> times) {
+double DataGenerator::calculate_median(std::vector<double> times) {
     if (times.empty()) return 0.0;
 
     double sum_times = std::accumulate(times.begin(), times.end(), 0.0);
     return sum_times / times.size();
 }
 
-void data_generator::export_to_csv(const std::string& filename) const {
+void DataGenerator::export_to_csv(const std::string& filename) const {
     std::ofstream output_file(filename);
 
     if (!output_file.is_open()) {
