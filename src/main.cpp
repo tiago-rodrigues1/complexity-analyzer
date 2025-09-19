@@ -38,9 +38,11 @@ void analyze_and_plot(const std::string& algorithm_name, const std::string& file
     std::vector<double> x_cont = linspace(meta.min_entry, meta.max_entry, X_ll.size());
 
     std::vector<std::unique_ptr<ComplexityFunction>> functions;
+    functions.emplace_back(std::make_unique<Logarithmic>());
     functions.emplace_back(std::make_unique<Linear>());
     functions.emplace_back(std::make_unique<NLogN>());
     functions.emplace_back(std::make_unique<Quadratic>());
+    functions.emplace_back(std::make_unique<Cubic>());
 
     size_t best_fit_index = 0;
     double min_mse = std::numeric_limits<double>::max();
@@ -73,24 +75,24 @@ int main() {
     const int N_SAMPLES = 20;
 
     std::vector<Algorithm> algorithms = {
+        // {
+        //     "sequential_search",
+        //     [](std::vector<int>& v) {
+        //         sequential_search(v, -1); // O(n)
+        //     }
+        // }
         {
-            "sequential_search",
+            "binary_search",
             [](std::vector<int>& v) {
-                sequential_search(v, -1); // O(n)
+                binary_search(v, -1); // O(log n)
             }
         }
-        // {
-        //     "binary_search",
-        //     [](std::vector<int>& v) {
-        //         binary_search(v, v[v.size() / 2]); // O(log n)
-        //     }
-        // },
         // {
         //     "bubble_sort",
         //     [](std::vector<int>& v) {
         //         bubble_sort(v); // O(n^2)
         //     }
-        // },
+        // }
         // {
         //     "merge_sort",
         //     [](std::vector<int>& v) {
@@ -105,15 +107,13 @@ int main() {
         std::cout << "\n=========================================\n";
         std::cout << "   Executando: " << algo.name << std::endl;
         std::cout << "=========================================\n";
-
         
         dg.run(algo.function);
 
         std::string filename = algo.name + ".csv";
         dg.export_to_csv(filename);
 
-
-        // analyze_and_plot(algo.name, filename);
+        analyze_and_plot(algo.name, filename);
     }
     
     return 0;

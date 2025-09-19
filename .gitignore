@@ -76,3 +76,6 @@ tags
 
 # csv files
 *.csv
+
+# charts
+*.png

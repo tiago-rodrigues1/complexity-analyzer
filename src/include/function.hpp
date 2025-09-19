@@ -36,7 +36,7 @@ std::pair<double,double> linear_regression(const std::vector<double>& x, const s
 double compute_mse(const std::vector<double>& x, const std::vector<double>& y, double a, double b) const {
     double sum = 0.0;
     for (size_t i = 0; i < x.size(); ++i) {
-        double predicted = a * x[i] + b;
+        double predicted = x[i];
         double error = y[i] - predicted;
         sum += error * error;
     }
@@ -83,8 +83,8 @@ public:
     std::vector<double> x_norm(data.size());
     std::vector<double> y_norm(y.size());
     for (size_t i = 0; i < data.size(); ++i) {
-        x_norm[i] = data[i] / max_theoretical;
-        y_norm[i] = y[i] / max_y;
+        x_norm[i] = data[i];
+        y_norm[i] = y[i];
     }
 
     // Fit linear regression

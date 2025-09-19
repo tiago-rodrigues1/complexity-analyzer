@@ -20,7 +20,7 @@ private:
     std::vector<int> data;
     std::vector<Result> results; 
     
-    int repetitions = 10;
+    int repetitions = 20;
 
 public:
     DataGenerator(int smp, int min, int max);

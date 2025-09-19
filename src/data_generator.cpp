@@ -35,13 +35,11 @@ void DataGenerator::run(std::function<void(std::vector<int>&)> algorithm) {
 }
 
 double DataGenerator::calculate_time(std::vector<int> copy, std::function<void(std::vector<int>&)> algorithm) {
-    std::this_thread::sleep_for(std::chrono::microseconds(100));
-
     auto start = std::chrono::high_resolution_clock::now();
     algorithm(copy);
     auto end = std::chrono::high_resolution_clock::now();
 
-    std::chrono::duration<double, std::milli> duration_ms = end - start;
+    std::chrono::duration<double, std::nano> duration_ms = end - start;
 
     return duration_ms.count();
 }
