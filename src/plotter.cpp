@@ -28,29 +28,27 @@ std::pair<double, double> linear_regression(const std::vector<long long>& x_data
 }
 
 void plot_graph(
+    const std::string& algorithm_name, 
     const std::vector<long long>& x_data, 
     const std::vector<double>& y_data,
     size_t best_fit_index) 
 {
     if (x_data.empty()) return;
 
+    std::string output_filename = "grafico_" + algorithm_name + ".png";
+    std::string plot_title = "Análise de Complexidade para: " + algorithm_name;
+
     Gnuplot gp;
-    gp << "set title 'Análise de Complexidade Empírica vs. Teórica'\n";
+    gp << "set title '" << plot_title << "'\n"; // <-- Título dinâmico
     gp << "set xlabel 'Tamanho da Entrada (n)'\n";
     gp << "set ylabel 'Tempo Médio (ms)'\n";
     gp << "set grid\n";
     gp << "set key left top\n"; 
     gp << "set terminal pngcairo size 1200,800 font 'Arial,12'\n"; 
-    gp << "set output 'grafico_analise.png'\n";
+    gp << "set output '" << output_filename << "'\n"; // <-- Nome de arquivo dinâmico
 
-    
-    // Para O(n)
     auto [a_linear, b_linear] = linear_regression(x_data, y_data, [](double x) { return x; });
-    
-    // Para O(n log n)
-    auto [a_nlogn, b_nlogn] = linear_regression(x_data, y_data, [](double x) { return x * log2(x); });
-    
-    // Para O(n²)
+    auto [a_nlogn, b_nlogn] = linear_regression(x_data, y_data, [](double x) { return x > 0 ? x * log2(x) : 0; });
     auto [a_quad, b_quad] = linear_regression(x_data, y_data, [](double x) { return x * x; });
 
     gp << "f_n(x) = " << a_linear << " * x + " << b_linear << "\n";
@@ -65,23 +63,22 @@ void plot_graph(
 
     for(size_t i = 0; i < func_names.size(); ++i) {
         std::string line_style = "with lines linecolor '" + colors[i] + "'";
-        
         if(i == best_fit_index) {
-            line_style += " linewidth 4 dashtype 1"; // Linha mais grossa e sólida
+            line_style += " linewidth 4 dashtype 1";
         } else {
-            line_style += " linewidth 2 dashtype 2"; // Linha mais fina e tracejada
+            line_style += " linewidth 2 dashtype 2";
         }
-        
         plot_command += ", " + func_names[i] + " " + line_style + " title '" + legend_titles[i] + "'";
     }
     
     gp << plot_command << "\n";
     gp.send1d(std::make_pair(x_data, y_data));
 
-    std::cout << "\n=== Métricas de Ajuste ===" << std::endl;
+    std::cout << "\n=== Métricas de Ajuste para " << algorithm_name << " ===" << std::endl;
     std::cout << "O(n): a=" << a_linear << ", b=" << b_linear << std::endl;
     std::cout << "O(n log n): a=" << a_nlogn << ", b=" << b_nlogn << std::endl;
     std::cout << "O(n²): a=" << a_quad << ", b=" << b_quad << std::endl;
     
-    std::cout << "\nGráfico gerado com sucesso em 'grafico_analise.png'" << std::endl;
+
+    std::cout << "\nGráfico gerado com sucesso em '" << output_filename << "'" << std::endl;
 }

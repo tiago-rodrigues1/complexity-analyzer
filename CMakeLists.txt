@@ -24,6 +24,7 @@ add_executable( ${APP_NAME}
   src/utils.cpp
   src/plotter.cpp 
   src/function.cpp
+  src/algorithms.cpp
 )
 
 target_include_directories(analyzer PUBLIC
