@@ -28,9 +28,6 @@ public:
     void run(std::function<void(std::vector<int>&)> algorithm);
     void export_to_csv(const std::string& filename) const;
     double calculate_time(std::vector<int> copy, std::function<void(std::vector<int>&)> algorithm);
-    double calculate_median(std::vector<double> times);
-
-
 };
 
 #endif
