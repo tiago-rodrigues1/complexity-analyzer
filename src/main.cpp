@@ -85,12 +85,12 @@ int main() {
         binary_search(v, -1);  // O(log n)
       } 
     },
-    // {
-    //     "bubble_sort",
-    //     [](std::vector<int>& v) {
-    //         bubble_sort(v); // O(n^2)
-    //     }
-    // }
+    {
+        "bubble_sort",
+        [](std::vector<int>& v) {
+            bubble_sort(v); // O(n^2)
+        }
+    },
     {
         "merge_sort",
         [](std::vector<int>& v) {
