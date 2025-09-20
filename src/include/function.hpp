@@ -1,111 +1,78 @@
 #ifndef FUNCTION_HPP
 #define FUNCTION_HPP
 
+#include <algorithm>
+#include <iostream>
+#include <limits>
 #include <math.h>
+#include <numeric>
+#include <sstream> 
 #include <string>
 #include <vector>
-#include <iostream>
-#include <numeric>
-#include <algorithm>
-#include <limits>
 
 class ComplexityFunction {
 protected:
   std::string name;
   std::vector<double> data;
+  std::string plot_command;
   double mse;
 
 private:
-
-// Finds the best fit line (linear regression) for the given points
-std::pair<double,double> linear_regression(const std::vector<double>& x, const std::vector<double>& y) const {
-    size_t n = x.size();
-    double sum_x = std::accumulate(x.begin(), x.end(), 0.0);
-    double sum_y = std::accumulate(y.begin(), y.end(), 0.0);
-    double sum_xy = std::inner_product(x.begin(), x.end(), y.begin(), 0.0);
-    double sum_x2 = std::inner_product(x.begin(), x.end(), x.begin(), 0.0);
-
-    double denominator = n * sum_x2 - sum_x * sum_x;
-    double a = (denominator != 0) ? (n * sum_xy - sum_x * sum_y) / denominator : 0;
-    double b = (sum_y - a * sum_x) / n;
-
-    return {a, b};
-}
-
-// Computes the Mean Squared Error between predicted and actual values
-double compute_mse(const std::vector<double>& x, const std::vector<double>& y, double a, double b) const {
+  double compute_mse(const std::vector<double>& x, const std::vector<double>& y) const {
     double sum = 0.0;
     for (size_t i = 0; i < x.size(); ++i) {
-        double predicted = x[i];
-        double error = y[i] - predicted;
-        sum += error * error;
+      double predicted = x[i];
+      double error = y[i] - predicted;
+      sum += error * error;
     }
-    return sum / x.size(); // computes the mean of squared errors
-}
+    return sum / x.size();
+  }
 
 public:
   ComplexityFunction(const std::string& nm) : name(nm) {}
   virtual ~ComplexityFunction() = default;
-  
+
   virtual double expected_value(double n) = 0;
+  virtual void set_command_plot() = 0;
 
-  std::string get_name() const {
-    return name;
-  }
+  std::vector<double> get_data() { return data; }
+  std::string get_name() const { return name; }
+  std::string get_plot_command() { return plot_command; }
 
-  void set_data(const std::vector<double>& x) {
+  void set_data(const std::vector<long long>& x) {
     data.clear();
     data.reserve(x.size());
 
     for (const auto& n : x) {
       data.push_back(expected_value(n));
     }
+
+    set_command_plot();
   }
 
-  void set_mse(const std::vector<double>& y, double max_y) {
+  void set_mse(const std::vector<double>& y) {
     if (y.size() != data.size()) {
-        mse = std::numeric_limits<double>::max();
-        return;
+      mse = std::numeric_limits<double>::max();
+      return;
     }
 
     if (data.empty()) {
-        mse = std::numeric_limits<double>::max();
-        return;
+      mse = std::numeric_limits<double>::max();
+      return;
     }
 
     double max_theoretical = *std::max_element(data.begin(), data.end());
-    if (max_theoretical == 0 || max_y == 0) {
-        mse = std::numeric_limits<double>::max();
-        return;
+    if (max_theoretical == 0) {
+      mse = std::numeric_limits<double>::max();
+      return;
     }
 
-    // Normalize values
-    std::vector<double> x_norm(data.size());
-    std::vector<double> y_norm(y.size());
-    for (size_t i = 0; i < data.size(); ++i) {
-        x_norm[i] = data[i];
-        y_norm[i] = y[i];
-    }
-
-    // Fit linear regression
-    auto [a, b] = linear_regression(x_norm, y_norm);
-
-    // Compute MSE
-    mse = compute_mse(x_norm, y_norm, a, b);
-
-    // Penalize if slope is negative
-    if (a < 0) {
-        mse *= 10;
-    }
+    mse = compute_mse(data, y);
   }
 
-  double get_mse() const {
-    return mse;
-  }
-  
-  const std::vector<double>& get_data() const {
-    return data;
-  }
+  double get_mse() const { return mse; }
+
+  const std::vector<double>& get_data() const { return data; }
 };
 
 /// Complexity Functions
@@ -117,31 +84,61 @@ public:
 
 class Linear : public ComplexityFunction {
 public:
-  Linear() : ComplexityFunction("O(n)") {}
+  Linear() : ComplexityFunction("O(n)") {};
   double expected_value(double n) override;
+  void set_command_plot() override {
+    std::stringstream ss;
+    ss << "f_n(x) = x /" << data.back();
+
+    plot_command = ss.str();
+  }
 };
 
 class Logarithmic : public ComplexityFunction {
 public:
   Logarithmic() : ComplexityFunction("O(log n)") {}
   double expected_value(double n) override;
+  void set_command_plot() override {
+    std::stringstream ss;
+    ss << "f_log(x) = log(x)/log(2)/" << data.back();
+
+    plot_command = ss.str();
+  }
 };
 
 class NLogN : public ComplexityFunction {
 public:
   NLogN() : ComplexityFunction("O(n log n)") {}
   double expected_value(double n) override;
+  void set_command_plot() override {
+    std::stringstream ss;
+    ss << "f_nlog(x) = x * log(x)/log(2)/" << data.back();
+
+    plot_command = ss.str();
+  }
 };
 
 class Quadratic : public ComplexityFunction {
 public:
   Quadratic() : ComplexityFunction("O(n^2)") {}
   double expected_value(double n) override;
+  void set_command_plot() override {
+    std::stringstream ss;
+    ss << "f_quad(x) = x**2/" << data.back();
+
+    plot_command = ss.str();
+  }
 };
 
 class Cubic : public ComplexityFunction {
 public:
   Cubic() : ComplexityFunction("O(n^3)") {}
   double expected_value(double n) override;
+  void set_command_plot() override {
+    std::stringstream ss;
+    ss << "f_cub(x) = x**3/" << data.back();
+
+    plot_command = ss.str();
+  }
 };
 #endif

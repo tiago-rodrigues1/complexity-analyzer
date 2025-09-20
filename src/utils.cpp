@@ -39,7 +39,10 @@ bool is_valid_file(const std::string& path) {
   return std::filesystem::exists(path) and std::filesystem::is_regular_file(path);
 }
 
-void read_csv(const std::string& path, std::vector<long long>& X, std::vector<double>& Y, Metadata& meta) {
+void read_csv(const std::string& path,
+              std::vector<long long>& X,
+              std::vector<double>& Y,
+              Metadata& meta) {
   std::ifstream data_file{ path };
 
   if (!is_valid_file(path) or !data_file.is_open()) {
