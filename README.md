@@ -1,7 +1,6 @@
 # Complexity Analyzer
 
-Um projeto em **C++** para **análise de complexidade de algoritmos**, incluindo geração de dados, execução de testes e visualização gráfica com **Gnuplot**.
-O objetivo é facilitar o estudo e a comparação entre diferentes algoritmos por meio de simulações práticas e gráficos intuitivos.
+O Complexity Analyzer é um projeto em C++, desenvolvido na disciplina de Estruturas de Dados Básicas II que tem como objetivo analisar empiricamente o tempo de execução de algoritmos para diferentes tamanhos de entrada, ajustando os dados coletados a funções assintóticas conhecidas — como O(n), O(log n) e O(n²) — para determinar a ordem de complexidade que melhor descreve seu comportamento.
 
 ---
 
@@ -63,3 +62,12 @@ cmake –build build;
 * ✅ Integração com Gnuplot para visualização
 
 ---
+
+## Autores
+
+| [![Kézia Ketillen Santos Lima](https://avatars3.githubusercontent.com/u/88369589?s=100&v=4)](https://github.com/Kk3tillen) | [![Tiago Rodrigues dos Santos](https://avatars.githubusercontent.com/u/70401246?s=100&v=4)](https://github.com/tiago-rodrigues1) |
+| :---: | :---: |
+| **Kézia Ketillen Santos Lima** | **Tiago Rodrigues dos Santos** |
+
+
+
