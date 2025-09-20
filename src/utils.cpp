@@ -39,7 +39,10 @@ bool is_valid_file(const std::string& path) {
   return std::filesystem::exists(path) and std::filesystem::is_regular_file(path);
 }
 
-void read_csv(const std::string& path, std::vector<long long>& X, std::vector<double>& Y, Metadata& meta) {
+void read_csv(const std::string& path,
+              std::vector<long long>& X,
+              std::vector<double>& Y,
+              Metadata& meta) {
   std::ifstream data_file{ path };
 
   if (!is_valid_file(path) or !data_file.is_open()) {
@@ -62,7 +65,7 @@ void read_csv(const std::string& path, std::vector<long long>& X, std::vector<do
     }
 
     try {
-      long long entry_size = std::stoll(input[0]);
+      int entry_size = std::stoll(input[0]);
       double time = std::stod(input[1]);
 
       if (X.size() == 0) {
@@ -96,9 +99,9 @@ void read_csv(const std::string& path, std::vector<long long>& X, std::vector<do
   data_file.close();
 }
 
-std::vector<double> linspace(double start, double end, int num_points) {
+std::vector<double> linspace(int start, int end, int num_points) {
   std::vector<double> result(num_points);
-  double step = (end - start) / (num_points - 1);
+  int step = (end - start) / (num_points - 1);
   for (int i = 0; i < num_points; ++i) {
     result[i] = start + step * i;
   }
