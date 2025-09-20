@@ -74,28 +74,29 @@ int main() {
   const int N_SAMPLES = 20;
 
   std::vector<Algorithm> algorithms = {
-    // {
-    //     "sequential_search",
-    //     [](std::vector<int>& v) {
-    //         sequential_search(v, -1); // O(n)
-    //     }
-    // }
-    { "binary_search",
+    {
+        "sequential search",
+        [](std::vector<int>& v) {
+            sequential_search(v, -1); // O(n)
+        }
+    },
+    { "binary search",
       [](std::vector<int>& v) {
         binary_search(v, -1);  // O(log n)
-      } }
+      } 
+    },
     // {
     //     "bubble_sort",
     //     [](std::vector<int>& v) {
     //         bubble_sort(v); // O(n^2)
     //     }
     // }
-    // {
-    //     "merge_sort",
-    //     [](std::vector<int>& v) {
-    //         merge_sort(v); // O(n log n)
-    //     }
-    // }
+    {
+        "merge_sort",
+        [](std::vector<int>& v) {
+            merge_sort(v); // O(n log n)
+        }
+    },
   };
 
   DataGenerator dg(N_SAMPLES, MIN_SIZE, MAX_SIZE);

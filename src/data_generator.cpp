@@ -20,6 +20,7 @@ DataGenerator::DataGenerator(int smp, int min, int max)
 }
 
 void DataGenerator::run(std::function<void(std::vector<int>&)> algorithm) {
+  results.clear();
   for (int n : input_sizes) {
     double time_sum = 0;
     std::vector<int> base_data(data.begin(), data.begin() + n);
@@ -54,7 +55,7 @@ void DataGenerator::export_to_csv(const std::string& filename) const {
     return;
   }
 
-  output_file << "tamanho,tempo_ms\n";
+  output_file << "tamanho,tempo_ns\n";
 
   for (const auto& result : results) {
     output_file << result.n << "," << std::fixed << result.avg_time << "\n";
