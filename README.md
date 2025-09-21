@@ -33,7 +33,7 @@ complexity-analyzer/
 Clone o repositório:
 
 ```bash
-git clone [https://github.com/seu-usuario/complexity-analyzer.git](https://github.com/tiago-rodrigues1/complexity-analyzer.git)
+git clone https://github.com/tiago-rodrigues1/complexity-analyzer.git
 cd complexity-analyzer
 ```
 Instale as dependecias do gnuplot:
